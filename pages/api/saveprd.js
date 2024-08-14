@@ -1,5 +1,5 @@
-import { db } from '../../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+const { db } = require('../../firebase');
+const { collection, addDoc } = require('firebase/firestore');
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

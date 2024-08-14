@@ -1,5 +1,6 @@
-import { useState } from "react";
-import jsPDF from "jspdf";
+import { useState } from 'react';
+import { Input, Textarea, Button } from '@shadcn/ui';
+import jsPDF from 'jspdf';
 
 export default function PRDForm() {
   const [prd, setPrd] = useState({
@@ -19,19 +20,24 @@ export default function PRDForm() {
   };
 
   const savePRD = async () => {
-    const response = await fetch('/api/savePrd', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(prd),
-    });
+    try {
+      const response = await fetch('/api/savePrd', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(prd),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log('PRD saved with ID:', data.id);
-    } else {
-      console.error('Error saving PRD');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('PRD saved with ID:', data.id);
+        // Optionally change input fields to text after saving
+      } else {
+        console.error('Error saving PRD:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error in savePRD:', error);
     }
   };
 
@@ -49,17 +55,17 @@ export default function PRDForm() {
   };
 
   return (
-    <form>
-      <input name="id" value={prd.id} onChange={handleChange} placeholder="PRD ID" />
-      <input name="title" value={prd.title} onChange={handleChange} placeholder="PRD Title" />
-      <textarea name="objective" value={prd.objective} onChange={handleChange} placeholder="Objective" />
-      <textarea name="description" value={prd.description} onChange={handleChange} placeholder="Description" />
-      <textarea name="functionalRequirements" value={prd.functionalRequirements} onChange={handleChange} placeholder="Functional Requirements" />
-      <textarea name="nonFunctionalRequirements" value={prd.nonFunctionalRequirements} onChange={handleChange} placeholder="Non-Functional Requirements" />
-      <textarea name="dependencies" value={prd.dependencies} onChange={handleChange} placeholder="Dependencies" />
-      <textarea name="acceptanceCriteria" value={prd.acceptanceCriteria} onChange={handleChange} placeholder="Acceptance Criteria" />
-      <button type="button" onClick={savePRD}>Save</button>
-      <button type="button" onClick={exportPDF}>Export as PDF</button>
+    <form className="space-y-4">
+      <Input name="id" value={prd.id} onChange={handleChange} placeholder="PRD ID" />
+      <Input name="title" value={prd.title} onChange={handleChange} placeholder="PRD Title" />
+      <Textarea name="objective" value={prd.objective} onChange={handleChange} placeholder="Objective" />
+      <Textarea name="description" value={prd.description} onChange={handleChange} placeholder="Description" />
+      <Textarea name="functionalRequirements" value={prd.functionalRequirements} onChange={handleChange} placeholder="Functional Requirements" />
+      <Textarea name="nonFunctionalRequirements" value={prd.nonFunctionalRequirements} onChange={handleChange} placeholder="Non-Functional Requirements" />
+      <Textarea name="dependencies" value={prd.dependencies} onChange={handleChange} placeholder="Dependencies" />
+      <Textarea name="acceptanceCriteria" value={prd.acceptanceCriteria} onChange={handleChange} placeholder="Acceptance Criteria" />
+      <Button onClick={savePRD} className="w-full" color="primary">Save</Button>
+      <Button onClick={exportPDF} className="w-full" color="secondary">Export as PDF</Button>
     </form>
   );
 }

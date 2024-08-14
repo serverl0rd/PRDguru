@@ -1,30 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import { Button, Card, List } from '@shadcn/ui';
+import Link from 'next/link';
 
 export default function Sidebar() {
   const [prds, setPrds] = useState([]);
 
   useEffect(() => {
     const fetchPrds = async () => {
-      const response = await fetch('/api/getPrds');
-      const data = await response.json();
-      setPrds(data);
+      try {
+        const response = await fetch('/api/getPrds');
+        const data = await response.json();
+        setPrds(data);
+      } catch (error) {
+        console.error('Error fetching PRDs:', error);
+      }
     };
 
     fetchPrds();
   }, []);
 
   return (
-    <div className="w-64 bg-gray-800 text-white">
-      <div className="p-4">
-        <button className="bg-blue-500 px-4 py-2 mb-4">
-          Add PRD
-        </button>
-        <ul>
-          {prds.map(prd => (
-            <li key={prd.id} className="mb-2">{prd.title}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <aside className="w-64 bg-gray-800 text-white p-4 flex flex-col">
+      <Button className="w-full mb-4" color="primary">
+        New PRD
+      </Button>
+      <List className="flex-1 overflow-auto">
+        {prds.map(prd => (
+          <Card key={prd.id} className="mb-2">
+            <Link href={`/prd/${prd.id}`}>
+              <a className="block p-4">{prd.title}</a>
+            </Link>
+          </Card>
+        ))}
+      </List>
+    </aside>
   );
 }
