@@ -1,20 +1,20 @@
-import { useAuth } from '../context/AuthContext';
-import Sidebar from './Sidebar';
-import { Navbar } from './Navbar';
-import { Fragment } from 'react';
+const { db } = require('../../firebase');
+const { collection, getDocs } = require('firebase/firestore');
 
-export default function Layout({ children }) {
-  const { user } = useAuth();
-
-  return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <main className="flex-1 flex flex-col">
-        <Navbar user={user} />
-        <div className="p-6 flex-1 overflow-auto">
-          {children}
-        </div>
-      </main>
-    </div>
-  );
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'prds'));
+      const prds = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      res.status(200).json(prds);
+    } catch (e) {
+      res.status(500).json({ error: 'Error fetching documents: ' + e.message });
+    }
+  } else {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
 }
