@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Input, Textarea, Button } from '@shadcn/ui';
 import jsPDF from 'jspdf';
 
 export default function PRDForm() {
@@ -56,16 +55,16 @@ export default function PRDForm() {
 
   return (
     <form className="space-y-4">
-      <Input name="id" value={prd.id} onChange={handleChange} placeholder="PRD ID" />
-      <Input name="title" value={prd.title} onChange={handleChange} placeholder="PRD Title" />
-      <Textarea name="objective" value={prd.objective} onChange={handleChange} placeholder="Objective" />
-      <Textarea name="description" value={prd.description} onChange={handleChange} placeholder="Description" />
-      <Textarea name="functionalRequirements" value={prd.functionalRequirements} onChange={handleChange} placeholder="Functional Requirements" />
-      <Textarea name="nonFunctionalRequirements" value={prd.nonFunctionalRequirements} onChange={handleChange} placeholder="Non-Functional Requirements" />
-      <Textarea name="dependencies" value={prd.dependencies} onChange={handleChange} placeholder="Dependencies" />
-      <Textarea name="acceptanceCriteria" value={prd.acceptanceCriteria} onChange={handleChange} placeholder="Acceptance Criteria" />
-      <Button onClick={savePRD} className="w-full" color="primary">Save</Button>
-      <Button onClick={exportPDF} className="w-full" color="secondary">Export as PDF</Button>
+      <input name="id" value={prd.id} onChange={handleChange} placeholder="PRD ID" className="input" />
+      <input name="title" value={prd.title} onChange={handleChange} placeholder="PRD Title" className="input" />
+      <textarea name="objective" value={prd.objective} onChange={handleChange} placeholder="Objective" className="textarea" />
+      <textarea name="description" value={prd.description} onChange={handleChange} placeholder="Description" className="textarea" />
+      <textarea name="functionalRequirements" value={prd.functionalRequirements} onChange={handleChange} placeholder="Functional Requirements" className="textarea" />
+      <textarea name="nonFunctionalRequirements" value={prd.nonFunctionalRequirements} onChange={handleChange} placeholder="Non-Functional Requirements" className="textarea" />
+      <textarea name="dependencies" value={prd.dependencies} onChange={handleChange} placeholder="Dependencies" className="textarea" />
+      <textarea name="acceptanceCriteria" value={prd.acceptanceCriteria} onChange={handleChange} placeholder="Acceptance Criteria" className="textarea" />
+      <button type="button" onClick={savePRD} className="btn btn-primary w-full">Save</button>
+      <button type="button" onClick={exportPDF} className="btn btn-secondary w-full">Export as PDF</button>
     </form>
   );
 }

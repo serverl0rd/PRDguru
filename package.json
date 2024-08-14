@@ -15,10 +15,10 @@
     "@shadcn/ui": "^0.0.4",
     "firebase": "^9.6.1",
     "jspdf": "^2.5.1",
-    "next": "^12.2.5",
+    "next": "^14.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-pdf": "^5.7.2",
+    "react-pdf": "^9.1.0",
     "shadcn": "^1.0.0"
   },
   "devDependencies": {

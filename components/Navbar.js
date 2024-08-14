@@ -1,4 +1,3 @@
-import { Avatar, Dropdown, Button } from '@shadcn/ui';
 import Link from 'next/link';
 
 export function Navbar({ user }) {
@@ -18,13 +17,13 @@ function LoginButton() {
   );
 }
 
-export function ProfileMenu({ user }) {
+function ProfileMenu({ user }) {
   return (
-    <Dropdown>
-      <Dropdown.Trigger>
-        <Avatar src={user.photoURL} />
-      </Dropdown.Trigger>
-      <Dropdown.Content>
+    <div className="dropdown">
+      <button className="dropdown-trigger">
+        <img src={user.photoURL} alt={user.displayName} className="avatar" />
+      </button>
+      <div className="dropdown-content">
         <div className="p-4">
           <p>{user.displayName}</p>
           <p>{user.email}</p>
@@ -32,7 +31,7 @@ export function ProfileMenu({ user }) {
             <a className="btn btn-secondary mt-4">Logout</a>
           </Link>
         </div>
-      </Dropdown.Content>
-    </Dropdown>
+      </div>
+    </div>
   );
 }

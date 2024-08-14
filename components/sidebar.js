@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, List } from '@shadcn/ui';
 import Link from 'next/link';
 
 export default function Sidebar() {
@@ -21,18 +20,16 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-gray-800 text-white p-4 flex flex-col">
-      <Button className="w-full mb-4" color="primary">
-        New PRD
-      </Button>
-      <List className="flex-1 overflow-auto">
+      <button className="btn btn-primary w-full mb-4">New PRD</button>
+      <div className="list flex-1 overflow-auto">
         {prds.map(prd => (
-          <Card key={prd.id} className="mb-2">
+          <div key={prd.id} className="card mb-2">
             <Link href={`/prd/${prd.id}`}>
               <a className="block p-4">{prd.title}</a>
             </Link>
-          </Card>
+          </div>
         ))}
-      </List>
+      </div>
     </aside>
   );
 }
