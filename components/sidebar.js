@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { supabase } from '../supabase';
 
 export default function Sidebar() {
   const [prds, setPrds] = useState([]);
@@ -7,9 +8,18 @@ export default function Sidebar() {
   useEffect(() => {
     const fetchPrds = async () => {
       try {
-        const response = await fetch('/api/getPrds');
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const response = await fetch('/api/getPrds', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
         const data = await response.json();
-        setPrds(data);
+        if (Array.isArray(data)) {
+          setPrds(data);
+        }
       } catch (error) {
         console.error('Error fetching PRDs:', error);
       }
@@ -24,8 +34,8 @@ export default function Sidebar() {
       <div className="list flex-1 overflow-auto">
         {prds.map(prd => (
           <div key={prd.id} className="card mb-2">
-            <Link href={`/prd/${prd.id}`}>
-              <a className="block p-4">{prd.title}</a>
+            <Link href={`/prd/${prd.id}`} className="block p-4">
+              {prd.title || 'Untitled PRD'}
             </Link>
           </div>
         ))}

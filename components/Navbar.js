@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
 
 export function Navbar({ user }) {
   return (
@@ -11,25 +12,36 @@ export function Navbar({ user }) {
 
 function LoginButton() {
   return (
-    <Link href="/api/login">
-      <a className="btn btn-primary">Login</a>
+    <Link href="/login" className="btn btn-primary">
+      Login
     </Link>
   );
 }
 
 function ProfileMenu({ user }) {
+  const { logout } = useAuth();
+  const avatarSrc = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=random`;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
+  };
+
   return (
     <div className="dropdown">
       <button className="dropdown-trigger">
-        <img src={user.photoURL} alt={user.displayName} className="avatar" />
+        <img src={avatarSrc} alt={user.displayName} className="avatar" />
       </button>
       <div className="dropdown-content">
         <div className="p-4">
           <p>{user.displayName}</p>
           <p>{user.email}</p>
-          <Link href="/api/logout">
-            <a className="btn btn-secondary mt-4">Logout</a>
-          </Link>
+          <button onClick={handleLogout} className="btn btn-secondary mt-4">
+            Logout
+          </button>
         </div>
       </div>
     </div>

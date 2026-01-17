@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import jsPDF from 'jspdf';
+import { supabase } from '../supabase';
 
 export default function PRDForm() {
   const [prd, setPrd] = useState({
@@ -20,10 +21,17 @@ export default function PRDForm() {
 
   const savePRD = async () => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error('User not authenticated');
+        return;
+      }
+
       const response = await fetch('/api/savePrd', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify(prd),
       });
@@ -31,7 +39,6 @@ export default function PRDForm() {
       if (response.ok) {
         const data = await response.json();
         console.log('PRD saved with ID:', data.id);
-        // Optionally change input fields to text after saving
       } else {
         console.error('Error saving PRD:', await response.text());
       }
