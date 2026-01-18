@@ -302,7 +302,7 @@ export default function LandingPage() {
               </div>
               <h3 className="font-semibold text-xl mb-2">Pro</h3>
               <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-4xl font-bold">₹900</span>
+                <span className="text-4xl font-bold">₹99</span>
                 <span className="text-white/60">/month</span>
               </div>
               <p className="text-sm text-white/70 mb-6">

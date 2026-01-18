@@ -267,7 +267,7 @@ function SettingsContent() {
                 ) : (
                   <div>
                     <p className="text-sm text-muted mb-4">
-                      Get unlimited AI-powered PRD creation for <strong>₹900/month</strong>
+                      Get unlimited AI-powered PRD creation for <strong>₹99/month</strong>
                     </p>
                     <ul className="text-sm space-y-2 mb-4">
                       <li className="flex items-center gap-2">
@@ -294,7 +294,7 @@ function SettingsContent() {
                       disabled={saving}
                       className="btn btn-primary"
                     >
-                      {saving ? 'Loading...' : 'Subscribe for ₹900/month'}
+                      {saving ? 'Loading...' : 'Subscribe for ₹99/month'}
                     </button>
                   </div>
                 )}
