@@ -1,15 +1,14 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import LandingPage from '../components/landing/LandingPage';
+import { useAuth } from '../../context/AuthContext';
 
-export default function Home() {
+export default function AuthGate({ children }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.push('/app');
+    if (!loading && !user) {
+      router.push('/login');
     }
   }, [user, loading, router]);
 
@@ -21,9 +20,9 @@ export default function Home() {
     );
   }
 
-  if (user) {
+  if (!user) {
     return null;
   }
 
-  return <LandingPage />;
+  return children;
 }

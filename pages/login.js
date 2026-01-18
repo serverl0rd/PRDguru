@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push('/');
+      router.push('/app');
     } catch (err) {
       setError(err.message || 'Failed to login');
     } finally {
@@ -27,57 +27,78 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">
-          Login to PRD Guru
-        </h1>
+    <div className="min-h-screen flex flex-col">
+      {/* Navbar */}
+      <nav className="border-b h-16 flex items-center px-6">
+        <Link href="/" className="logo">
+          <span className="logo-bold">PRD</span>Guru
+        </Link>
+      </nav>
 
-        {error && (
-          <div className="bg-red-500 text-white p-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-300 mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input w-full"
-              required
-            />
+      {/* Login Form */}
+      <main className="flex-1 flex items-center justify-center px-6">
+        <div className="card w-full max-w-md">
+          <div className="card-header">
+            <h1 className="text-2xl font-semibold text-center">
+              Welcome back
+            </h1>
+            <p className="text-muted text-center text-sm mt-1">
+              Sign in to continue to PRD Guru
+            </p>
           </div>
 
-          <div>
-            <label className="block text-gray-300 mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input w-full"
-              required
-            />
+          <div className="card-content">
+            {error && (
+              <div className="bg-[#fee2e2] text-[#dc2626] p-3 rounded-[var(--radius)] mb-4 text-sm">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn btn-primary w-full"
+              >
+                {loading ? 'Signing in...' : 'Sign in'}
+              </button>
+            </form>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary w-full"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <p className="text-gray-400 text-center mt-4">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="text-blue-400 hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </div>
+          <div className="card-footer">
+            <p className="text-muted text-center text-sm">
+              Don&apos;t have an account?{' '}
+              <Link href="/signup" className="text-[var(--foreground)] font-medium hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
