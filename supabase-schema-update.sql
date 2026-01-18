@@ -7,13 +7,14 @@ CREATE TABLE user_settings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Subscriptions table (for Stripe subscriptions)
+-- Subscriptions table (for Razorpay subscriptions)
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
-  stripe_customer_id TEXT,
-  stripe_subscription_id TEXT,
-  status TEXT NOT NULL DEFAULT 'inactive' CHECK (status IN ('active', 'inactive', 'canceled', 'past_due')),
+  razorpay_customer_id TEXT,
+  razorpay_subscription_id TEXT,
+  razorpay_payment_id TEXT,
+  status TEXT NOT NULL DEFAULT 'inactive' CHECK (status IN ('active', 'inactive', 'canceled', 'past_due', 'created')),
   current_period_end TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -29,11 +30,11 @@ CREATE POLICY "Users can manage own settings" ON user_settings
 CREATE POLICY "Users can view own subscription" ON subscriptions
   FOR SELECT USING (auth.uid() = user_id);
 
--- Only allow service role to modify subscriptions (via webhooks)
+-- Service role can manage subscriptions (via webhooks/API)
 CREATE POLICY "Service role can manage subscriptions" ON subscriptions
   FOR ALL USING (true) WITH CHECK (true);
 
 -- Create indexes
 CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
-CREATE INDEX idx_subscriptions_stripe_customer_id ON subscriptions(stripe_customer_id);
+CREATE INDEX idx_subscriptions_razorpay_subscription_id ON subscriptions(razorpay_subscription_id);
 CREATE INDEX idx_user_settings_user_id ON user_settings(user_id);

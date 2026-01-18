@@ -27,7 +27,7 @@ npm run lint     # Run ESLint
 - **Database:** Supabase PostgreSQL
 - **Auth:** Supabase email/password
 - **AI:** Anthropic Claude API
-- **Payments:** Stripe (subscriptions)
+- **Payments:** Razorpay (subscriptions)
 - **Hosting:** Vercel
 
 ### App Structure
@@ -67,8 +67,9 @@ npm run lint     # Run ESLint
 | `/pages/api/getPrds.js` | Get PRDs endpoint |
 | `/pages/api/user/settings.js` | User API key management |
 | `/pages/api/user/subscription.js` | Subscription status |
-| `/pages/api/stripe/create-checkout.js` | Stripe checkout |
-| `/pages/api/stripe/webhook.js` | Stripe webhooks |
+| `/pages/api/razorpay/create-subscription.js` | Razorpay subscription |
+| `/pages/api/razorpay/verify-payment.js` | Payment verification |
+| `/pages/api/razorpay/webhook.js` | Razorpay webhooks |
 | `/supabase.js` | Supabase client |
 
 ### Data Flow
@@ -88,7 +89,7 @@ npm run lint     # Run ESLint
 
 Two options for AI access:
 1. **BYOK (Bring Your Own Key)** - User adds their Anthropic API key in Settings
-2. **Pro Subscription ($9/month)** - Stripe subscription, uses app's master API key
+2. **Pro Subscription (₹900/month)** - Razorpay subscription, uses app's master API key
 
 Chat API checks:
 1. User's own API key (from `user_settings` table)
@@ -108,10 +109,11 @@ SUPABASE_SERVICE_ROLE_KEY=
 # Anthropic (for subscribers)
 ANTHROPIC_API_KEY=
 
-# Stripe
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_ID=
+# Razorpay
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_PLAN_ID=
+RAZORPAY_WEBHOOK_SECRET=
 
 # App
 NEXT_PUBLIC_APP_URL=https://prdguru.vercel.app
@@ -152,8 +154,8 @@ CREATE TABLE user_settings (
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
-  stripe_customer_id TEXT,
-  stripe_subscription_id TEXT,
+  razorpay_subscription_id TEXT,
+  razorpay_payment_id TEXT,
   status TEXT NOT NULL DEFAULT 'inactive',
   current_period_end TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

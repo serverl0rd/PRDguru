@@ -12,7 +12,7 @@ AI-powered Product Requirements Document (PRD) creation tool. Chat with Claude A
 - **Live PDF Preview** - See your PRD rendered in real-time as you build it
 - **Three-Panel Layout** - Sidebar for PRD management, center for preview, right for chat
 - **BYOK Support** - Bring your own Anthropic API key
-- **Pro Subscription** - $9/month for unlimited AI access
+- **Pro Subscription** - ₹900/month for unlimited AI access
 - **Secure Auth** - Email/password authentication via Supabase
 
 ## Tech Stack
@@ -22,7 +22,7 @@ AI-powered Product Requirements Document (PRD) creation tool. Chat with Claude A
 - **Database:** Supabase (PostgreSQL)
 - **Auth:** Supabase Auth
 - **AI:** Anthropic Claude API
-- **Payments:** Stripe
+- **Payments:** Razorpay
 - **Hosting:** Vercel
 
 ## Getting Started
@@ -32,7 +32,7 @@ AI-powered Product Requirements Document (PRD) creation tool. Chat with Claude A
 - Node.js 18+
 - Supabase account
 - Anthropic API key (for AI features)
-- Stripe account (for payments)
+- Razorpay account (for payments)
 
 ### Installation
 
@@ -62,10 +62,11 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 # Anthropic (for Pro subscribers)
 ANTHROPIC_API_KEY=sk-ant-...
 
-# Stripe
-STRIPE_SECRET_KEY=sk_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_ID=price_...
+# Razorpay
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=...
+RAZORPAY_PLAN_ID=plan_...
+RAZORPAY_WEBHOOK_SECRET=...
 
 # App URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -111,12 +112,12 @@ CREATE TABLE user_settings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Subscriptions (for Stripe)
+-- Subscriptions (for Razorpay)
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
-  stripe_customer_id TEXT,
-  stripe_subscription_id TEXT,
+  razorpay_subscription_id TEXT,
+  razorpay_payment_id TEXT,
   status TEXT NOT NULL DEFAULT 'inactive',
   current_period_end TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -134,17 +135,24 @@ CREATE POLICY "Users can manage own settings" ON user_settings FOR ALL USING (au
 CREATE POLICY "Users can view own subscription" ON subscriptions FOR SELECT USING (auth.uid() = user_id);
 ```
 
-## Stripe Setup
+## Razorpay Setup
 
-1. Create a product in Stripe Dashboard:
+1. Create a subscription plan in Razorpay Dashboard:
+   - Go to Dashboard > Subscriptions > Plans
    - Name: "PRD Guru Pro"
-   - Price: $9.00 USD, recurring monthly
+   - Amount: ₹900, monthly billing
+   - Copy the Plan ID
 
-2. Set up webhook endpoint:
-   - URL: `https://your-domain.com/api/stripe/webhook`
-   - Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
+2. Get API keys:
+   - Go to Settings > API Keys
+   - Copy Key ID and Key Secret
 
-3. Add the Price ID and Webhook Secret to your environment variables
+3. Set up webhook (optional):
+   - Go to Settings > Webhooks
+   - URL: `https://your-domain.com/api/razorpay/webhook`
+   - Events: `subscription.activated`, `subscription.charged`, `subscription.cancelled`
+
+4. Add all credentials to your environment variables
 
 ## Project Structure
 

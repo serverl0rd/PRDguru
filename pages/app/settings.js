@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Script from 'next/script';
 import AuthGate from '../../components/auth/AuthGate';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../supabase';
@@ -8,6 +9,7 @@ import { supabase } from '../../supabase';
 export default function SettingsPage() {
   return (
     <AuthGate>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <SettingsContent />
     </AuthGate>
   );
@@ -27,12 +29,10 @@ function SettingsContent() {
   useEffect(() => {
     fetchSettings();
 
-    // Check for success/cancel from Stripe
+    // Check for success from payment
     if (router.query.success) {
       setMessage('Subscription activated successfully!');
       fetchSettings();
-    } else if (router.query.canceled) {
-      setMessage('Checkout was canceled.');
     }
   }, [router.query]);
 
@@ -126,7 +126,8 @@ function SettingsContent() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
-      const response = await fetch('/api/stripe/create-checkout', {
+      // Create subscription on server
+      const response = await fetch('/api/razorpay/create-subscription', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`
@@ -135,14 +136,59 @@ function SettingsContent() {
 
       const data = await response.json();
 
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setMessage(data.error || 'Failed to start checkout');
+      if (data.error) {
+        setMessage(data.error);
         setSaving(false);
+        return;
       }
+
+      // Open Razorpay checkout
+      const options = {
+        key: data.keyId,
+        subscription_id: data.subscriptionId,
+        name: data.name,
+        description: data.description,
+        prefill: data.prefill,
+        theme: {
+          color: '#0a0a0a'
+        },
+        handler: async function (response) {
+          // Verify payment on server
+          const verifyRes = await fetch('/api/razorpay/verify-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_subscription_id: response.razorpay_subscription_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            setMessage('Subscription activated successfully!');
+            fetchSettings();
+          } else {
+            setMessage('Payment verification failed. Please contact support.');
+          }
+          setSaving(false);
+        },
+        modal: {
+          ondismiss: function () {
+            setSaving(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
     } catch (error) {
-      setMessage('Failed to start checkout');
+      setMessage('Failed to start checkout: ' + error.message);
       setSaving(false);
     }
   };
@@ -221,7 +267,7 @@ function SettingsContent() {
                 ) : (
                   <div>
                     <p className="text-sm text-muted mb-4">
-                      Get unlimited AI-powered PRD creation for <strong>$9/month</strong>
+                      Get unlimited AI-powered PRD creation for <strong>₹900/month</strong>
                     </p>
                     <ul className="text-sm space-y-2 mb-4">
                       <li className="flex items-center gap-2">
@@ -248,7 +294,7 @@ function SettingsContent() {
                       disabled={saving}
                       className="btn btn-primary"
                     >
-                      {saving ? 'Loading...' : 'Subscribe for $9/month'}
+                      {saving ? 'Loading...' : 'Subscribe for ₹900/month'}
                     </button>
                   </div>
                 )}
