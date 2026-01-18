@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   // Verify authentication
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    return res.status(401).json({ error: 'Missing authorization header' });
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const token = authHeader.replace('Bearer ', '');
@@ -53,16 +53,39 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  // Check if ANTHROPIC_API_KEY is set
-  if (!process.env.ANTHROPIC_API_KEY) {
-    // Return a helpful mock response when API key is not set
+  // Check for user's own API key first
+  const { data: settings } = await supabase
+    .from('user_settings')
+    .select('anthropic_api_key')
+    .eq('user_id', user.id)
+    .single();
+
+  // Check for active subscription
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('status, current_period_end')
+    .eq('user_id', user.id)
+    .single();
+
+  const hasOwnKey = !!settings?.anthropic_api_key;
+  const hasActiveSubscription = subscription?.status === 'active' &&
+    new Date(subscription.current_period_end) > new Date();
+
+  // Determine which API key to use
+  let apiKey = null;
+
+  if (hasOwnKey) {
+    apiKey = settings.anthropic_api_key;
+  } else if (hasActiveSubscription && process.env.ANTHROPIC_API_KEY) {
+    apiKey = process.env.ANTHROPIC_API_KEY;
+  }
+
+  // If no API key available, return paywall message
+  if (!apiKey) {
     return res.status(200).json({
-      message: "I'd love to help you create a PRD! However, the AI integration isn't configured yet. Please add your ANTHROPIC_API_KEY to the environment variables.\n\nIn the meantime, you can manually describe your product idea and I'll generate a sample PRD structure for you.",
-      prdUpdates: message.toLowerCase().includes('task') || message.toLowerCase().includes('todo') ? {
-        title: "Task Management Application",
-        objective: "Build a modern task management solution that helps teams organize, track, and complete their work efficiently.",
-        description: "A web-based task management platform that enables teams to create, assign, and track tasks with features like due dates, priorities, labels, and progress tracking.",
-      } : null
+      message: "To use the AI assistant, you have two options:\n\n**Option 1: Bring Your Own Key**\nAdd your own Anthropic API key in Settings. Get one at console.anthropic.com\n\n**Option 2: Subscribe**\nGet unlimited AI access for $9/month.\n\nGo to Settings to get started!",
+      requiresUpgrade: true,
+      prdUpdates: null
     });
   }
 
@@ -94,7 +117,7 @@ User message: ${message}`
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
@@ -108,6 +131,15 @@ User message: ${message}`
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Claude API error:', errorData);
+
+      // Check if it's an invalid API key error
+      if (response.status === 401) {
+        return res.status(200).json({
+          message: "Your API key appears to be invalid. Please check your API key in Settings.",
+          prdUpdates: null
+        });
+      }
+
       throw new Error('Failed to get response from AI');
     }
 

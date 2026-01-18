@@ -33,9 +33,18 @@ export default function ThreePanelLayout() {
             <div className="p-4">
               <p className="font-medium text-sm">{user?.displayName}</p>
               <p className="text-sm text-muted truncate">{user?.email}</p>
-              <button onClick={handleLogout} className="btn btn-secondary w-full mt-3 h-9">
-                Sign out
-              </button>
+              <div className="mt-3 space-y-2">
+                <Link href="/app/settings" className="btn btn-ghost w-full h-9 justify-start">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mr-2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                  </svg>
+                  Settings
+                </Link>
+                <button onClick={handleLogout} className="btn btn-secondary w-full h-9">
+                  Sign out
+                </button>
+              </div>
             </div>
           </div>
         </div>

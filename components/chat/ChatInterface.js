@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { usePRD } from '../../context/PRDContext';
 import { supabase } from '../../supabase';
 import ChatMessage from './ChatMessage';
@@ -7,6 +8,7 @@ import ChatInput from './ChatInput';
 export default function ChatInterface() {
   const { currentPRD, messages, addMessage, updateField, isLoading, setIsLoading } = usePRD();
   const [input, setInput] = useState('');
+  const [requiresUpgrade, setRequiresUpgrade] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -46,6 +48,11 @@ export default function ChatInterface() {
       }
 
       const data = await response.json();
+
+      // Check if upgrade is required
+      if (data.requiresUpgrade) {
+        setRequiresUpgrade(true);
+      }
 
       addMessage('assistant', data.message);
 
@@ -109,6 +116,20 @@ export default function ChatInterface() {
           </div>
         )}
       </div>
+
+      {/* Upgrade Banner */}
+      {requiresUpgrade && (
+        <div className="p-3 bg-[var(--muted)] border-t shrink-0">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-muted">
+              Add your API key or subscribe to use AI
+            </p>
+            <Link href="/app/settings" className="btn btn-primary h-8 text-xs px-3 shrink-0">
+              Go to Settings
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Input */}
       <ChatInput

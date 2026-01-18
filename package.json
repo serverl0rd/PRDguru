@@ -12,11 +12,13 @@
     "@shadcn/ui": "^0.0.4",
     "@supabase/supabase-js": "^2.90.1",
     "jspdf": "^2.5.1",
+    "micro": "^10.0.1",
     "next": "^14.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-pdf": "^9.1.0",
-    "shadcn": "^1.0.0"
+    "shadcn": "^1.0.0",
+    "stripe": "^20.2.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
