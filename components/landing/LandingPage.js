@@ -262,7 +262,7 @@ export default function LandingPage() {
                 <span className="text-4xl font-bold">Free</span>
               </div>
               <p className="text-sm text-muted mb-6">
-                Use your own Anthropic API key. You pay Anthropic directly for usage.
+                Use your own API key from OpenAI, Anthropic, or Google Gemini. You pay for usage directly.
               </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center gap-3 text-sm">
@@ -371,7 +371,15 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t text-center text-sm text-muted">
-            Built with Next.js and Claude AI
+            Built by{' '}
+            <a href="https://serverlord.in" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+              ServerLord
+            </a>
+            {' '}(
+            <a href="https://atharvakulkarni.link" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+              Atharva Kulkarni
+            </a>
+            )
           </div>
         </div>
       </footer>

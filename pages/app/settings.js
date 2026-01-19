@@ -19,12 +19,20 @@ function SettingsContent() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [apiKey, setApiKey] = useState('');
+  const [provider, setProvider] = useState('anthropic');
   const [hasApiKey, setHasApiKey] = useState(false);
   const [maskedKey, setMaskedKey] = useState('');
+  const [currentProvider, setCurrentProvider] = useState('anthropic');
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+
+  const providers = [
+    { id: 'anthropic', name: 'Anthropic (Claude)', placeholder: 'sk-ant-...', link: 'https://console.anthropic.com' },
+    { id: 'openai', name: 'OpenAI (GPT-4o)', placeholder: 'sk-...', link: 'https://platform.openai.com/api-keys' },
+    { id: 'gemini', name: 'Google (Gemini)', placeholder: 'AI...', link: 'https://aistudio.google.com/app/apikey' }
+  ];
 
   useEffect(() => {
     fetchSettings();
@@ -48,6 +56,7 @@ function SettingsContent() {
       const settingsData = await settingsRes.json();
       setHasApiKey(settingsData.hasApiKey);
       setMaskedKey(settingsData.maskedKey);
+      setCurrentProvider(settingsData.provider || 'anthropic');
 
       // Fetch subscription status
       const subRes = await fetch('/api/user/subscription', { headers });
@@ -75,7 +84,7 @@ function SettingsContent() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({ apiKey })
+        body: JSON.stringify({ apiKey, provider })
       });
 
       const data = await response.json();
@@ -306,15 +315,20 @@ function SettingsContent() {
               <div className="card-header">
                 <h2 className="text-lg font-semibold">Bring Your Own API Key</h2>
                 <p className="text-sm text-muted mt-1">
-                  Use your own Anthropic API key instead of subscribing
+                  Use your own API key from OpenAI, Anthropic, or Google instead of subscribing
                 </p>
               </div>
               <div className="card-content">
                 {hasApiKey ? (
                   <div>
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      <span className="text-sm">API key configured: <code className="bg-[var(--muted)] px-2 py-1 rounded">{maskedKey}</code></span>
+                      <span className="text-sm font-medium">
+                        {providers.find(p => p.id === currentProvider)?.name || 'Unknown Provider'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-sm">API key: <code className="bg-[var(--muted)] px-2 py-1 rounded">{maskedKey}</code></span>
                     </div>
                     <button
                       onClick={handleRemoveApiKey}
@@ -326,18 +340,49 @@ function SettingsContent() {
                   </div>
                 ) : (
                   <form onSubmit={handleSaveApiKey}>
-                    <p className="text-sm text-muted mb-4">
-                      Get your API key from{' '}
-                      <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="underline">
-                        console.anthropic.com
-                      </a>
-                    </p>
+                    {/* Provider Selection */}
+                    <div className="mb-4">
+                      <label className="text-sm font-medium mb-2 block">Select AI Provider</label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {providers.map((p) => (
+                          <label
+                            key={p.id}
+                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                              provider === p.id ? 'border-[var(--foreground)] bg-[var(--muted)]' : 'border-[var(--border)] hover:bg-[var(--muted)]'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="provider"
+                              value={p.id}
+                              checked={provider === p.id}
+                              onChange={(e) => setProvider(e.target.value)}
+                              className="w-4 h-4"
+                            />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium">{p.name}</span>
+                              <a
+                                href={p.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-muted underline ml-2"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Get API Key
+                              </a>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* API Key Input */}
                     <div className="flex gap-2">
                       <input
                         type="password"
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="sk-ant-..."
+                        placeholder={providers.find(p => p.id === provider)?.placeholder || 'Enter API key...'}
                         className="input flex-1"
                         required
                       />
@@ -368,6 +413,21 @@ function SettingsContent() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="border-t h-10 flex items-center justify-center px-4 shrink-0 text-xs text-muted">
+        <span>
+          Built by{' '}
+          <a href="https://serverlord.in" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+            ServerLord
+          </a>
+          {' '}(
+          <a href="https://atharvakulkarni.link" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+            Atharva Kulkarni
+          </a>
+          )
+        </span>
+      </footer>
     </div>
   );
 }

@@ -224,6 +224,23 @@ body {
   font-weight: 700;
 }
 
+/* WYSIWYG Editable Field Placeholder */
+.empty-placeholder:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+[contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+[contenteditable]:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
 /* Utility Classes */
 .text-muted {
   color: var(--muted-foreground);

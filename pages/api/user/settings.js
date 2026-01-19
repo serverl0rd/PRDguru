@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     // Get user settings
     const { data, error } = await supabase
       .from('user_settings')
-      .select('anthropic_api_key')
+      .select('api_key, ai_provider')
       .eq('user_id', user.id)
       .single();
 
@@ -29,23 +29,40 @@ export default async function handler(req, res) {
     }
 
     // Mask the API key for display
-    const maskedKey = data?.anthropic_api_key
-      ? `sk-ant-...${data.anthropic_api_key.slice(-8)}`
+    const maskedKey = data?.api_key
+      ? `${data.api_key.slice(0, 7)}...${data.api_key.slice(-4)}`
       : null;
 
-    return res.status(200).json({ hasApiKey: !!data?.anthropic_api_key, maskedKey });
+    return res.status(200).json({
+      hasApiKey: !!data?.api_key,
+      maskedKey,
+      provider: data?.ai_provider || 'anthropic'
+    });
   }
 
   if (req.method === 'POST') {
-    const { apiKey } = req.body;
+    const { apiKey, provider } = req.body;
 
     if (!apiKey) {
       return res.status(400).json({ error: 'API key is required' });
     }
 
-    // Validate the API key format
-    if (!apiKey.startsWith('sk-ant-')) {
-      return res.status(400).json({ error: 'Invalid Anthropic API key format' });
+    if (!provider) {
+      return res.status(400).json({ error: 'Provider is required' });
+    }
+
+    // Validate API key format based on provider
+    const validPrefixes = {
+      anthropic: 'sk-ant-',
+      openai: 'sk-',
+      gemini: 'AI'
+    };
+
+    const expectedPrefix = validPrefixes[provider];
+    if (expectedPrefix && !apiKey.startsWith(expectedPrefix)) {
+      return res.status(400).json({
+        error: `Invalid API key format for ${provider}. Expected key starting with "${expectedPrefix}"`
+      });
     }
 
     // Upsert user settings
@@ -53,7 +70,8 @@ export default async function handler(req, res) {
       .from('user_settings')
       .upsert({
         user_id: user.id,
-        anthropic_api_key: apiKey,
+        api_key: apiKey,
+        ai_provider: provider,
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'user_id'
@@ -70,7 +88,11 @@ export default async function handler(req, res) {
     // Remove API key
     const { error } = await supabase
       .from('user_settings')
-      .update({ anthropic_api_key: null, updated_at: new Date().toISOString() })
+      .update({
+        api_key: null,
+        ai_provider: null,
+        updated_at: new Date().toISOString()
+      })
       .eq('user_id', user.id);
 
     if (error) {

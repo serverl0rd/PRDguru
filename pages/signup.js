@@ -61,6 +61,19 @@ export default function SignupPage() {
             </div>
           </div>
         </main>
+        <footer className="border-t h-10 flex items-center justify-center px-4 shrink-0 text-xs text-muted">
+          <span>
+            Built by{' '}
+            <a href="https://serverlord.in" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+              ServerLord
+            </a>
+            {' '}(
+            <a href="https://atharvakulkarni.link" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+              Atharva Kulkarni
+            </a>
+            )
+          </span>
+        </footer>
       </div>
     );
   }
@@ -151,6 +164,21 @@ export default function SignupPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t h-10 flex items-center justify-center px-4 shrink-0 text-xs text-muted">
+        <span>
+          Built by{' '}
+          <a href="https://serverlord.in" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+            ServerLord
+          </a>
+          {' '}(
+          <a href="https://atharvakulkarni.link" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--foreground)]">
+            Atharva Kulkarni
+          </a>
+          )
+        </span>
+      </footer>
     </div>
   );
 }

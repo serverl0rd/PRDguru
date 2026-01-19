@@ -67,6 +67,21 @@ export default function ThreePanelLayout() {
           <ChatInterface />
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t h-10 flex items-center justify-center px-4 shrink-0 text-xs text-muted">
+        <span>
+          Built by{' '}
+          <a href="https://serverlord.in" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+            ServerLord
+          </a>
+          {' '}(
+          <a href="https://atharvakulkarni.link" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+            Atharva Kulkarni
+          </a>
+          )
+        </span>
+      </footer>
     </div>
   );
 }
