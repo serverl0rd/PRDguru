@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PRDguru is an AI-powered Next.js 14 web application for creating Product Requirements Documents (PRDs) through conversation. Features a three-panel layout with PRD sidebar, live PDF preview, and AI chat interface.
+PRDguru is an AI-powered Next.js 15 web application for creating Product Requirements Documents (PRDs) through conversation. Features a three-panel layout with PRD sidebar, WYSIWYG editor preview, and AI chat interface. Supports multiple AI providers (OpenAI, Anthropic, Google Gemini).
 
 **Live:** https://prdguru.vercel.app
 
@@ -22,11 +22,11 @@ npm run lint     # Run ESLint
 ## Architecture
 
 ### Tech Stack
-- **Frontend:** Next.js 14, React 18, Tailwind CSS v4
+- **Frontend:** Next.js 15, React 18, Tailwind CSS v4
 - **Backend:** Next.js API routes (`/pages/api/`)
 - **Database:** Supabase PostgreSQL
 - **Auth:** Supabase email/password
-- **AI:** Anthropic Claude API
+- **AI:** OpenAI (GPT-4o), Anthropic (Claude), Google (Gemini) - multi-provider support
 - **Payments:** Razorpay (subscriptions)
 - **Hosting:** Vercel
 
@@ -36,13 +36,15 @@ npm run lint     # Run ESLint
 ┌─────────────────────────────────────────────────────────────┐
 │  Navbar (Logo + User Menu)                                  │
 ├────────────┬─────────────────────────┬──────────────────────┤
-│  Sidebar   │   PDF Preview           │   Chat Interface     │
+│  Sidebar   │   WYSIWYG Editor        │   Chat Interface     │
 │  (250px)   │   (flex: 1)             │   (350px)            │
 │            │                         │                      │
-│  PRD List  │   Real-time PDF         │   AI Assistant       │
-│  + New PRD │   rendered from         │   for creating       │
-│            │   current PRD data      │   PRDs via chat      │
-└────────────┴─────────────────────────┴──────────────────────┘
+│  PRD List  │   Click-to-edit PRD     │   AI Assistant       │
+│  + New PRD │   with live preview     │   for creating       │
+│            │                         │   PRDs via chat      │
+├────────────┴─────────────────────────┴──────────────────────┤
+│  Footer (ServerLord / Atharva Kulkarni branding)            │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Key Files
@@ -51,21 +53,21 @@ npm run lint     # Run ESLint
 |------|---------|
 | `/pages/index.js` | Landing page (unauthenticated) / redirect to /app |
 | `/pages/app/index.js` | Main app with three-panel layout |
-| `/pages/app/settings.js` | User settings (API key, subscription) |
+| `/pages/app/settings.js` | User settings (API key with provider selection, subscription) |
 | `/pages/login.js` | Login page |
 | `/pages/signup.js` | Signup page |
 | `/components/landing/LandingPage.js` | Landing page component |
-| `/components/app/ThreePanelLayout.js` | Main app layout |
+| `/components/app/ThreePanelLayout.js` | Main app layout with footer |
 | `/components/app/PRDSidebar.js` | PRD list sidebar |
-| `/components/app/PDFPreview.js` | Live PDF preview |
+| `/components/app/PDFPreview.js` | WYSIWYG editor with contentEditable fields |
 | `/components/chat/ChatInterface.js` | AI chat interface |
 | `/components/auth/AuthGate.js` | Protected route wrapper |
 | `/context/AuthContext.js` | Supabase auth logic |
 | `/context/PRDContext.js` | PRD state management |
-| `/pages/api/chat.js` | AI chat endpoint |
+| `/pages/api/chat.js` | AI chat endpoint (supports OpenAI, Anthropic, Gemini) |
 | `/pages/api/saveprd.js` | Save PRD endpoint |
 | `/pages/api/getPrds.js` | Get PRDs endpoint |
-| `/pages/api/user/settings.js` | User API key management |
+| `/pages/api/user/settings.js` | User API key and provider management |
 | `/pages/api/user/subscription.js` | Subscription status |
 | `/pages/api/razorpay/create-subscription.js` | Razorpay subscription |
 | `/pages/api/razorpay/verify-payment.js` | Payment verification |
@@ -77,22 +79,22 @@ npm run lint     # Run ESLint
 2. User authenticates via email/password (Supabase)
 3. In `/app`, user chats with AI to create PRD
 4. AI responses update PRD fields in real-time via `PRDContext`
-5. PDF preview updates automatically from `currentPRD` state
+5. WYSIWYG editor allows direct inline editing of PRD fields
 6. PRDs saved to Supabase via `/api/saveprd`
 
 ### State Management
 - `AuthContext` - User auth state
-- `PRDContext` - Current PRD, messages, loading state
+- `PRDContext` - Current PRD, messages, loading state, updateField function
 - Local component state via `useState`
 
 ## Monetization
 
 Two options for AI access:
-1. **BYOK (Bring Your Own Key)** - User adds their Anthropic API key in Settings
-2. **Pro Subscription (₹900/month)** - Razorpay subscription, uses app's master API key
+1. **BYOK (Bring Your Own Key)** - User adds their API key from OpenAI, Anthropic, or Google in Settings
+2. **Pro Subscription (₹99/month)** - Razorpay subscription, uses app's master Anthropic API key
 
 Chat API checks:
-1. User's own API key (from `user_settings` table)
+1. User's own API key and provider (from `user_settings` table)
 2. Active subscription (from `subscriptions` table)
 3. If neither, returns paywall message
 
@@ -143,7 +145,8 @@ CREATE TABLE prds (
 CREATE TABLE user_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
-  anthropic_api_key TEXT,
+  api_key TEXT,
+  ai_provider TEXT DEFAULT 'anthropic',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -179,6 +182,7 @@ CSS classes defined in `/styles/globals.css`:
 - `.card`, `.card-header`, `.card-content`
 - `.logo`, `.logo-bold`
 - `.message`, `.message-user`, `.message-assistant`
+- `[contenteditable]` - WYSIWYG editor styling with placeholder support
 
 ## Testing
 
@@ -189,3 +193,9 @@ node test-new-ui.js        # UI tests
 node test-subscription.js  # Subscription feature tests
 node test-full-flow.js     # Full E2E flow
 ```
+
+## Branding
+
+Footer displays: "Built by ServerLord (Atharva Kulkarni)"
+- ServerLord: https://serverlord.in
+- Atharva Kulkarni: https://atharvakulkarni.link

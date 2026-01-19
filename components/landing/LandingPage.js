@@ -114,9 +114,9 @@ export default function LandingPage() {
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">AI-Powered Chat</h3>
+              <h3 className="font-semibold text-lg mb-2">Multi-Provider AI</h3>
               <p className="text-sm text-muted">
-                Describe your product idea in plain English. Claude AI asks the right questions and structures your PRD.
+                Choose your preferred AI: OpenAI GPT-4o, Anthropic Claude, or Google Gemini. Bring your own API key.
               </p>
             </div>
 
@@ -127,9 +127,9 @@ export default function LandingPage() {
                   <polyline points="14 2 14 8 20 8"/>
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Live PDF Preview</h3>
+              <h3 className="font-semibold text-lg mb-2">WYSIWYG Editor</h3>
               <p className="text-sm text-muted">
-                Watch your PRD take shape in real-time. See exactly how it will look when exported.
+                Click directly on any section to edit inline. Real-time preview updates as you type.
               </p>
             </div>
 
@@ -140,9 +140,9 @@ export default function LandingPage() {
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Smart Editing</h3>
+              <h3 className="font-semibold text-lg mb-2">AI + Manual Editing</h3>
               <p className="text-sm text-muted">
-                AI understands context. Ask it to expand sections, add details, or restructure content.
+                Let AI generate content, then fine-tune it yourself. Best of both worlds for perfect PRDs.
               </p>
             </div>
 

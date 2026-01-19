@@ -1,27 +1,26 @@
 # PRDGuru
 
-AI-powered Product Requirements Document (PRD) creation tool. Chat with Claude AI to create comprehensive PRDs in minutes.
+AI-powered Product Requirements Document (PRD) creation tool. Chat with AI to create comprehensive PRDs in minutes.
 
 **Live Demo:** [prdguru.vercel.app](https://prdguru.vercel.app)
 
-![PRDGuru Screenshot](https://via.placeholder.com/800x400?text=PRDGuru+Screenshot)
-
 ## Features
 
-- **AI-Powered Chat** - Describe your product idea and let Claude AI guide you through creating a comprehensive PRD
-- **Live PDF Preview** - See your PRD rendered in real-time as you build it
-- **Three-Panel Layout** - Sidebar for PRD management, center for preview, right for chat
-- **BYOK Support** - Bring your own Anthropic API key
-- **Pro Subscription** - ₹900/month for unlimited AI access
+- **AI-Powered Chat** - Describe your product idea and let AI guide you through creating a comprehensive PRD
+- **Multi-Provider BYOK** - Bring your own API key from OpenAI (GPT-4o), Anthropic (Claude), or Google (Gemini)
+- **WYSIWYG Editor** - Click directly on the PRD preview to edit any section inline
+- **Live Preview** - See your PRD rendered in real-time as you build it
+- **Three-Panel Layout** - Sidebar for PRD management, center for WYSIWYG editing, right for chat
+- **Pro Subscription** - ₹99/month for unlimited AI access (no API key required)
 - **Secure Auth** - Email/password authentication via Supabase
 
 ## Tech Stack
 
-- **Frontend:** Next.js 14, React 18, Tailwind CSS v4
+- **Frontend:** Next.js 15, React 18, Tailwind CSS v4
 - **Backend:** Next.js API routes
 - **Database:** Supabase (PostgreSQL)
 - **Auth:** Supabase Auth
-- **AI:** Anthropic Claude API
+- **AI:** OpenAI, Anthropic Claude, Google Gemini (multi-provider support)
 - **Payments:** Razorpay
 - **Hosting:** Vercel
 
@@ -31,7 +30,7 @@ AI-powered Product Requirements Document (PRD) creation tool. Chat with Claude A
 
 - Node.js 18+
 - Supabase account
-- Anthropic API key (for AI features)
+- API key from OpenAI, Anthropic, or Google (for BYOK)
 - Razorpay account (for payments)
 
 ### Installation
@@ -74,7 +73,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 5. Set up Supabase database:
    - Create a new Supabase project
-   - Run the SQL from `supabase-schema-update.sql` in the SQL Editor
+   - Run the SQL from the Database Setup section below
 
 6. Start the development server:
 ```bash
@@ -103,11 +102,12 @@ CREATE TABLE prds (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- User settings (for BYOK API keys)
+-- User settings (for BYOK API keys - supports multiple providers)
 CREATE TABLE user_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
-  anthropic_api_key TEXT,
+  api_key TEXT,
+  ai_provider TEXT DEFAULT 'anthropic',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -140,7 +140,7 @@ CREATE POLICY "Users can view own subscription" ON subscriptions FOR SELECT USIN
 1. Create a subscription plan in Razorpay Dashboard:
    - Go to Dashboard > Subscriptions > Plans
    - Name: "PRD Guru Pro"
-   - Amount: ₹900, monthly billing
+   - Amount: ₹99, monthly billing
    - Copy the Plan ID
 
 2. Get API keys:
@@ -158,7 +158,7 @@ CREATE POLICY "Users can view own subscription" ON subscriptions FOR SELECT USIN
 
 ```
 ├── components/
-│   ├── app/           # Main app components
+│   ├── app/           # Main app components (ThreePanelLayout, PDFPreview, PRDSidebar)
 │   ├── auth/          # Auth components
 │   ├── chat/          # Chat interface
 │   └── landing/       # Landing page
@@ -171,7 +171,7 @@ CREATE POLICY "Users can view own subscription" ON subscriptions FOR SELECT USIN
 │   ├── index.js       # Landing page
 │   ├── login.js       # Login
 │   └── signup.js      # Signup
-├── public/            # Static assets
+├── public/            # Static assets (favicon)
 ├── styles/            # Global styles
 └── supabase.js        # Supabase client
 ```
@@ -208,4 +208,4 @@ MIT
 
 ---
 
-Built with Next.js and Claude AI
+Built by [ServerLord](https://serverlord.in) ([Atharva Kulkarni](https://atharvakulkarni.link))
